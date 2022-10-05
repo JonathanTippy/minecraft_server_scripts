@@ -1,0 +1,11 @@
+[Unit]
+Description=Playit.gg client for ssh and minecraft server
+Wants=network-online.target
+After=network-online.target minecraft.service
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/playit
+Restart=always
+[Install]
+WantedBy=multi-user.target
+

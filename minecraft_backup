@@ -1,0 +1,13 @@
+#!/bin/bash
+DATE=$(date)
+echo "stopping server"
+systemctl --user stop minecraft
+echo "stopped server"
+echo "making backup"
+cp /opt/minecraft/server /var/local/minecraft/backups -R
+cd /var/local/minecraft/backups
+mv server "minecraft_backup_${DATE}"
+echo "made backup"
+echo "rebooting in 10 seconds"
+sleep 10
+systemctl reboot

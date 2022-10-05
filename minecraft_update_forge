@@ -1,0 +1,118 @@
+#!/bin/bash
+systemctl --user stop minecraft
+MINECRAFT_VERSION=${1:-"unknown"}
+FORGE_VERSION=${2:-"unknown"}
+RCON_PASSWORD=${2:-"unknown"}
+if [ "unknown" == "${MINECRAFT_VERSION}" ]; then
+	read -e -p "enter minecraft version:" MINECRAFT_VERSION
+fi
+if [ "unknown" == "${FORGE_VERSION}" ]; then
+	read -e -p "enter forge version ("latest" is a valid answer :):" FORGE_VERSION
+fi
+if [ "unknown" == "${RCON_PASSWORD}" ]; then
+	read -e -p "enter rcon password:" RCON_PASSWORD
+fi
+mkdir /opt/minecraft
+mkdir /opt/minecraft/server
+cd /opt/minecraft
+
+if [ "${FORGE_VERSION}" == "latest" ]; then
+
+	curl -o index.html https://files.minecraftforge.net/net/minecraftforge/forge/index_${MINECRAFT_VERSION}.html
+	FORGE_VERSION=$(cat index.html | grep -oP '(?<=Recommended: )(?:(?!"/>).)*')
+	rm index.html
+fi
+
+echo ${MINECRAFT_VERSION} ${FORGE_VERSION}
+
+if [ $(curl https://maven.minecraftforge.net/net/minecraftforge/forge/${MINECRAFT_VERSION}-${FORGE_VERSION}/forge-${MINECRAFT_VERSION}-${FORGE_VERSION}-installer.jar | grep -c "404 Not Found") -ne 0 ]; then
+echo minecraft or forge version is invalid
+exit
+fi
+
+mkdir server.old
+
+cp server/* server.old -Rf
+
+rm server/* -Rf
+
+cp server.old/server.properties		server/server.properties.old
+cp server.old/mods			server/mods -Rf
+cp server.old/banned-ips.json		server/banned-ips.json
+cp server.old/banned-players.json	server/banned-players.json
+cp server.old/ops.json			server/ops.json
+cp server.old/whitelist.json		server/whitelist.json
+cp server.old/usercache.json		server/usercache.json
+cp server.old/world			server/world -Rf
+cp server.old/logs			server/logs -Rf
+
+cd server
+
+curl -o installer.jar  https://maven.minecraftforge.net/net/minecraftforge/forge/${MINECRAFT_VERSION}-${FORGE_VERSION}/forge-${MINECRAFT_VERSION}-${FORGE_VERSION}-installer.jar
+
+java -jar installer.jar --installServer
+
+rm installer.jar
+
+./run.sh --initSettings --nogui
+
+sed -i 's/false/true/g' eula.txt
+
+./run.sh --initSettings --nogui
+
+if [ "$(ls | grep -c server.properties.old)" -ne "0" ]; then
+	grep = server.properties.old | while read line
+		do
+			LINE_VALUE_OLD=$(echo $line | grep -oP '=.*')
+			LINE_PROPERTY_OLD=$(echo $line | grep -oP '.*(?==)' )
+			echo $LINE_PROPERTY_OLD
+			echo $LINE_VALUE_OLD
+			sed -i "s/${LINE_PROPERTY_OLD}=.*/${LINE_PROPERTY_OLD}${LINE_VALUE_OLD}/g" server.properties
+		done
+	rm server.properties.old
+fi
+sed -i "s/enable-rcon=.*/enable-rcon=true/g" server.properties
+sed -i "s/rcon.password=.*/rcon.password=${RCON_PASSWORD}/g" server.properties
+
+read -e -p "add your rcon password to the stop minecraft script? (if you don't do this minecraft might not stop correctly) (yes | no:)" addrconpassword
+if [ "yes" == "${addrconpassword}" ]; then
+	if [ $(ls /usr/local/bin/minecraft_stop) == $(echo "/usr/local/bin/minecraft_stop") ]; then
+		sed -i "s|export RCON_PASSWORD=.*|export RCON_PASSWORD=${RCON_PASSWORD}|g" /usr/local/bin/minecraft_stop
+	else
+		touch /usr/local/bin/minecraft_stop
+
+		echo '#!/bin/sh
+
+export RCON_PASSWORD=
+
+mcrcon -H 127.0.0.1 -p ${RCON_PASSWORD} -P 25575 stop
+
+while kill -0 $MAINPID 2>/dev/null
+do
+  sleep 0.5
+done
+' > /usr/local/bin/minecraft_stop
+		sed -i "s|export RCON_PASSWORD=.*|export RCON_PASSWORD=${RCON_PASSWORD}|g" /usr/local/bin/minecraft_stop
+		chmod +x /usr/local/bin/minecraft_stop
+	fi
+
+fi
+read -e -p "add custom jvm arguments? (they might not work, and are made for java 17) (yes | no:)" addjvmargs
+if [ "yes" == "${addjvmargs}" ]; then
+sed -i "s|# -Xmx4G|-Xms12G -Xmx12G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:-UseBiasedLocking -XX:UseAVX=3 -XX:+UseStringDeduplication -XX:+UseFastUnorderedTimeStamps -XX:+UseAES -XX:+UseAESIntrinsics -XX:UseSSE=4 -XX:+UseFMA -XX:AllocatePrefetchStyle=1 -XX:+UseLoopPredicate -XX:+RangeCheckElimination -XX:+EliminateLocks -XX:+DoEscapeAnalysis -XX:+UseCodeCacheFlushing -XX:+SegmentedCodeCache -XX:+UseFastJNIAccessors -XX:+OptimizeStringConcat -XX:+UseCompressedOops -XX:+UseThreadPriorities -XX:+OmitStackTraceInFastThrow -XX:+TrustFinalNonStaticFields -XX:ThreadPriorityPolicy=1 -XX:+UseInlineCaches -XX:+RewriteBytecodes -XX:+RewriteFrequentPairs -XX:+UseNUMA -XX:-DontCompileHugeMethods -XX:+UseFPUForSpilling -XX:+UseFastStosb -XX:+UseNewLongLShift -XX:+UseVectorCmov -XX:+UseXMMForArrayCopy -XX:+UseXmmI2D -XX:+UseXmmI2F -XX:+UseXmmLoadAndClearUpper -XX:+UseXmmRegToRegMoveAll -Dfile.encoding=UTF-8 -Xlog:async -Djava.security.egd=file:/dev/urandom --add-modules jdk.incubator.vector|g" user_jvm_args.txt
+fi
+echo "server will run in 10 seconds, read the output to find out if it worked correctly and then run stop"
+sleep 10
+./run.sh --nogui
+read -e -p "did server work? (yes | no) :" didserverwork
+if [ "yes" == "${didserverwork}" ]; then
+cd ..
+rm server.old -Rf
+else
+cd ..
+rm server/* -Rf
+cp server.old/* server -Rf
+rm server.old -Rf
+fi
+systemctl --user start minecraft
+

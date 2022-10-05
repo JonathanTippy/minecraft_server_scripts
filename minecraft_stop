@@ -1,0 +1,10 @@
+#!/bin/sh
+
+export RCON_PASSWORD=
+mcrcon -H 127.0.0.1 -p ${RCON_PASSWORD} -P 25575 stop
+
+while kill -0 $MAINPID 2>/dev/null
+do
+  sleep 0.5
+done
+

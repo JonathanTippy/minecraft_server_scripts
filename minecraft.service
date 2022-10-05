@@ -1,0 +1,11 @@
+[Unit]
+Description=Minecraft Server
+After=basic.target
+[Service]
+#User=admininstrator
+ExecStart=/usr/local/bin/minecraft_start
+ExecStop=/usr/local/bin/minecraft_stop
+Restart=always
+[Install]
+WantedBy=default.target
+Alias=mc.service
