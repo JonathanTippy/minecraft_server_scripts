@@ -43,3 +43,7 @@ These scripts are for managing a forge or fabric headless minecraft server while
 - crontab -e
 - add the following line to the bottom of the file
 - 0 0 * * * /usr/local/bin/minecraft_backup
+## adding mods to the server
+- cd /opt/minecraft/server/mods
+- wget <link to mod>
+- ^ run this for every mod you want to use
