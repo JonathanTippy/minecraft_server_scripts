@@ -45,5 +45,5 @@ These scripts are for managing a forge or fabric headless minecraft server while
 - 0 0 * * * /usr/local/bin/minecraft_backup
 ## adding mods to the server
 - cd /opt/minecraft/server/mods
-- wget <link to mod>
+- wget *link to mod*
 - ^ run this for every mod you want to use
