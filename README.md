@@ -23,6 +23,7 @@ These scripts are for managing a forge or fabric headless minecraft server while
 - sudo cp minecraft_start /usr/local/bin
 - sudo cp minecraft_update_fabric /usr/local/bin
 - sudo cp minecraft_update_forge /usr/local/bin
+- sudo cp curseforge_mods_downloader /usr/local/bin
 ## Setting up Minecraft Server
 - mkdir /opt/minecraft
 - sudo chown $USER /opt/minecraft -R
@@ -43,7 +44,8 @@ These scripts are for managing a forge or fabric headless minecraft server while
 - crontab -e
 - add the following line to the bottom of the file
 - 0 0 * * * /usr/local/bin/minecraft_backup
-## adding mods to the server
-- cd /opt/minecraft/server/mods
-- wget *link to mod*
-- ^ run this for every mod you want to use
+## adding mods to the server (optional)
+- curseforge_mods_downloader
+- add each mod link in its own line
+![Screenshot_2022-10-06_11-04-50](https://user-images.githubusercontent.com/54297927/194384587-68ffc0d3-c23d-48f8-aeb9-986c908523a1.png)
+
