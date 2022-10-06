@@ -46,6 +46,12 @@ These scripts are for managing a forge or fabric headless minecraft server while
 - 0 0 * * * /usr/local/bin/minecraft_backup
 ## adding mods to the server (optional)
 - curseforge_mods_downloader
+- download the mods and copy the links afterwards
 - add each mod link in its own line
+- press ctrl + s to save the mods list file and then ctrl + x to close the file
+- watch the server boot and answer weather it works or not
+- if it doesn't work, wait a few seconds and try again with different mods
+
+
 ![Screenshot_2022-10-06_11-04-50](https://user-images.githubusercontent.com/54297927/194384587-68ffc0d3-c23d-48f8-aeb9-986c908523a1.png)
 
