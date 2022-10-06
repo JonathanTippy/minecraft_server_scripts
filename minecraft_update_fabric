@@ -44,6 +44,7 @@ cp server.old/whitelist.json		server/whitelist.json
 cp server.old/usercache.json		server/usercache.json
 cp server.old/world			server/world -Rf
 cp server.old/logs			server/logs -Rf
+cp server.old/modslist			server/modslist
 
 cd server
 

@@ -1,0 +1,31 @@
+#!/bin/bash
+echo stopping minecraft server
+systemctl --user stop minecraft
+echo stopped minecraft server
+cd /opt/minecraft/server
+touch modslist
+nano modslist
+mkdir mods.old
+mv mods/* mods.old
+cat  modslist | while read line
+do
+	echo downloading ${line} into ${PWD}
+	cd /opt/minecraft/server/mods
+	wget ${line} -v
+	ls
+done
+cd /opt/minecraft/server
+cp mods.old/* mods -n
+echo server will start in 10 seconds, read the text to see if it worked and then stop it
+sleep 10
+minecraft_start
+read -e -p "did server work? (yes | no) :" didserverwork
+if [ "yes" == "${didserverwork}" ]; then
+	rm mods.old -Rf
+else
+	rm mods/* -Rf
+	cp mods.old/* mods -Rf
+	rm mods.old -Rf
+fi
+systemctl --user start minecraft
+
