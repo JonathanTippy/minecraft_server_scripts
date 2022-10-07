@@ -1,3 +1,10 @@
+Welcome to My custom scripts 
+here is a basic service command if your coming back :)
+
+to tell a service to start afther reboot run (sudo systemctl enable (your service)
+to start a service run (sudo systemctl start (your service)
+to stop a service run (sudo systemctl stop (your service)
+
 # minecraft_server_scripts
 These scripts are for managing a forge or fabric headless minecraft server while tunneling with playit.gg. They were written on debian bullseye and might not work on other distributions.
 ## Installing Dependancies
