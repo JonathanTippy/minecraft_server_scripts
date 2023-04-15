@@ -39,6 +39,9 @@ These scripts are for managing a forge or fabric headless minecraft server while
 - sudo systemctl enable playit
 - sudo systemctl start playit
 ## adding a server backup to crontab (optional)
+  you can also use the restic option for super compact backups, 
+  but this will require you to create a restic repo. 
+  I will not explain how to do that.
 - mkdir /var/local/minecraft
 - sudo chown $USER /var/local/minecraft
 - crontab -e
