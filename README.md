@@ -41,7 +41,10 @@ These scripts are for managing a forge or fabric headless minecraft server while
 ## adding a server backup to crontab (optional)
   you can also use the restic option for super compact backups, 
   but this will require you to create a restic repo. 
-  I will not explain how to do that.
+  I will not explain how to do that. Also, I will not explain how
+  to retrieve the data from the restic repo. There isn't much of a
+  reason for this, I just don't want to do it right now but i wanted to
+  add the restuc backup script
 - mkdir /var/local/minecraft
 - sudo chown $USER /var/local/minecraft
 - crontab -e
