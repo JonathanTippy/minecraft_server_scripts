@@ -29,6 +29,7 @@ These scripts are for managing a forge or fabric headless minecraft server while
 - sudo chown $USER /opt/minecraft -R
 - run either minecraft_update_fabric or minecraft_update_forge
 - sudo cp minecraft.service /etc/systemd/user
+- sudo loginctl enable-linger <username>
 - systemctl --user daemon-reload
 - systemctl --user enable minecraft
 - systemctl --user start minecraft
